@@ -20,6 +20,9 @@ export function createMdxContent(
   description: string,
   markdown: string,
 ): string {
+  // マークダウンをMDX形式に変換
+  const mdxContent = convertZennToMdx(markdown);
+
   // フロントマターの作成
   // タグのインデントを統一（2スペース）
   const tagsString = tags.map((tag) => `  - ${tag}`).join('\n');
@@ -40,5 +43,48 @@ ${tagsString}
 description: ${description}
 ---
 
-${markdown}`;
+${mdxContent}`;
+}
+
+/**
+ * Zennの:::messageブロックをMDXの<Callout>コンポーネントに変換する関数
+ * @param markdown Zenn形式のマークダウンテキスト
+ * @returns <Callout>コンポーネントを使用したMDX形式のテキスト
+ */
+export function convertZennToMdx(markdown: string): string {
+  // Zennの:::messageブロックを検出する正規表現
+  // :::message [type] で始まり、:::で終わるブロックを検出
+  const messageBlockRegex = /:::message(?:\s+([a-z]+))?\n([\s\S]*?):::/g;
+
+  // 変換処理
+  return markdown.replace(
+    messageBlockRegex,
+    (_, type: string | undefined, content: string | undefined) => {
+      // contentがundefinedの場合は空文字列にする
+      const safeContent = content || '';
+
+      // contentの前後の空白行を削除
+      const trimmedContent = safeContent.trim();
+
+      // 複数行のコンテンツを各行にインデントを追加して整形
+      const indentedContent = trimmedContent
+        .split('\n')
+        .map((line: string) => `  ${line}`)
+        .join('\n');
+
+      // typeの変換
+      // alert -> warning
+      // info -> info (default)
+      // typeが指定されていない場合は "info" とする
+      let calloutType = 'info';
+      if (type === 'alert') {
+        calloutType = 'warning';
+      } else if (type) {
+        calloutType = type;
+      }
+
+      // <Callout>コンポーネントを生成
+      return `<Callout type="${calloutType}" title="">\n${indentedContent}\n</Callout>\n`;
+    },
+  );
 }
