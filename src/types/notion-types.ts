@@ -6,7 +6,7 @@ export interface NotionResponse {
   readonly created_by: TedBy;
   readonly last_edited_by: TedBy;
   readonly cover: null;
-  readonly icon: null;
+  readonly icon: Icon;
   readonly parent: Parent;
   readonly archived: boolean;
   readonly in_trash: boolean;
@@ -19,6 +19,11 @@ export interface NotionResponse {
 interface TedBy {
   readonly object: string;
   readonly id: string;
+}
+
+interface Icon {
+  readonly type: string;
+  readonly emoji: string;
 }
 
 interface Parent {
@@ -39,7 +44,7 @@ interface Properties {
 interface DateClass {
   readonly id: string;
   readonly type: string;
-  readonly last_edited_time: Date;
+  readonly last_edited_time: string;
 }
 
 interface Description {

@@ -4,11 +4,10 @@ import { NotionZennMarkdownConverter } from '@notion-md-converter/zenn';
 import { Client } from '@notionhq/client';
 import { createTextMessage, replyMessage } from './lib/line-lib';
 
-import type { NotionResponse } from './lib/notion-lib';
-
-import { createMdxContent } from './lib/mdx-lib';
+import type { NotionResponse } from './types';
 
 import { createGithubPr } from './lib/github-lib';
+import { createMdxContent } from './lib/mdx-lib';
 
 export default {
   async fetch(request, env, ctx): Promise<Response> {
@@ -46,12 +45,18 @@ export default {
         }
 
         // ページIDを取得
-        const pageId = text.split('?')[0].split('/').pop();
+        // example: https://www.notion.so/NotoSansJP-Safari-1ba779d04d0280cabec8c883c37b0627?pvs=4
+        // example: https://www.notion.so/1ba779d04d0280cabcc6c62808dc1a03?pvs=4
+        const urlParts = text.split('?')[0].split('/');
+        const lastPart = urlParts.pop() || '';
+
+        // URLの最後の部分からページIDを抽出
+        // タイトル付きURL（例：NotoSansJP-Safari-1ba779d04d0280cabec8c883c37b0627）からIDのみを取得
+        const pageId = lastPart.includes('-') ? lastPart.split('-').pop() : lastPart;
+
         if (!pageId) {
           return new Response('notionのページURLを指定してください', { status: 400 });
         }
-
-        // TODO: ページのメタデータ取得処理は@notion-md-converterにないため一旦放置
 
         ctx.waitUntil(
           (async () => {
@@ -62,22 +67,21 @@ export default {
                 auth: env.NOTION_API_KEY,
               });
 
-              console.log('Notionページ取得処理を終了します');
               const page = (await client.pages.retrieve({
                 page_id: pageId,
               })) as NotionResponse;
 
               console.log('Notionページ取得処理を終了します');
-              console.log('変換処理を開始します');
+              console.log('メタデータ変換処理を開始します');
 
               const title = page.properties.title.title[0].plain_text;
               const date = page.properties.date.last_edited_time;
               const description = page.properties.description.rich_text[0].plain_text;
-              const icon = page.properties.icon.rich_text[0].plain_text;
+              const icon = page.icon.emoji;
               const tags = page.properties.tags.multi_select.map((tag) => tag.name);
               const slug = page.properties.slug.rich_text[0].plain_text;
               const isPublic = page.properties.public.checkbox;
-              console.log('変換処理を終了します');
+              console.log('メタデータ変換処理を終了します');
 
               // Notionのページ内容を取得
               const content = await $getPageFullContent(client, pageId);
