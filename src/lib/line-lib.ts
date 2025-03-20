@@ -86,3 +86,12 @@ export async function replyMessage<T>(
   };
   return sendRequest(endpoint, body, accessToken);
 }
+
+export async function sendMessage(p: {
+  message: string;
+  replyToken: string;
+  accessToken: string;
+}) {
+  const message = createTextMessage(p.message);
+  return replyMessage(message, p.replyToken, p.accessToken);
+}
