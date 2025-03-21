@@ -25,6 +25,9 @@ export function createMdxContent(
   // マークダウン内の単独URLをLinkPreviewコンポーネントに変換
   const transformedMdxContent = transformLinksToPreviewComponent(mdxContent);
 
+  // コードブロックのタイトル形式を変換
+  const finalMdxContent = transformCodeBlockTitles(transformedMdxContent);
+
   // フロントマターの作成
   // タグのインデントを統一（2スペース）
   const tagsString = tags.map((tag) => `  - ${tag}`).join('\n');
@@ -45,7 +48,7 @@ ${tagsString}
 description: ${description}
 ---
 
-${transformedMdxContent}`;
+${finalMdxContent}`;
 }
 
 /**
@@ -162,4 +165,41 @@ export function transformLinksToPreviewComponent(markdown: string): string {
 
   // 変換後の行を結合して返す
   return transformedLines.join('\n');
+}
+
+/**
+ * コードブロックのタイトル形式を変換する関数
+ * Notionスタイル: ```typescript:index.ts
+ * MDXスタイル:     ```typescript title="index.ts"
+ *
+ * @param markdown 変換対象のマークダウンテキスト
+ * @returns 変換後のマークダウンテキスト
+ */
+export function transformCodeBlockTitles(markdown: string): string {
+  if (!markdown) return markdown;
+
+  // 行ごとに処理する
+  const lines = markdown.split('\n');
+  const resultLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    // コードブロック開始行かどうか確認
+    const codeBlockMatch = line.match(/^```([a-zA-Z0-9_+-]+):([^\s]+)$/);
+
+    if (codeBlockMatch) {
+      // マッチングした場合、言語とファイル名を抽出
+      const language = codeBlockMatch[1];
+      const filename = codeBlockMatch[2];
+
+      // 新しい形式に変換して追加
+      resultLines.push(`\`\`\`${language} title="${filename}"`);
+    } else {
+      // マッチしない行はそのまま追加
+      resultLines.push(line);
+    }
+  }
+
+  // 変換後の行を結合して返す
+  return resultLines.join('\n');
 }

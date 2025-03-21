@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
+    "deploy:secret": "wrangler deploy --keep-vars",
     "dev": "wrangler dev",
     "ngrok": "cd .ngrok && ngrok http 8787",
     "start": "wrangler dev",
