@@ -1,5 +1,5 @@
 /**
- * MDXファイルを生成する関数
+ * MDXファイルを生成する関数（画像処理対応バージョン）
  * @param title 記事タイトル
  * @param isPublic 公開設定
  * @param date 日付
@@ -8,6 +8,7 @@
  * @param tags タグ配列
  * @param description 説明
  * @param markdown マークダウンコンテンツ
+ * @param r2Bucket R2バケットインスタンス
  * @returns 生成されたMDXコンテンツ
  */
 export function createMdxContent(
@@ -19,9 +20,10 @@ export function createMdxContent(
   tags: string[],
   description: string,
   markdown: string,
-): string {
+) {
   // マークダウンをMDX形式に変換
   const mdxContent = convertZennToMdx(markdown);
+
   // マークダウン内の単独URLをLinkPreviewコンポーネントに変換
   const transformedMdxContent = transformLinksToPreviewComponent(mdxContent);
 

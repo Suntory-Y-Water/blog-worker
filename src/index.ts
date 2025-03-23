@@ -6,6 +6,7 @@ import { sendMessage } from './lib/line-lib';
 
 import type { NotionResponse } from './types';
 
+import { processAndUploadImages } from './lib/cloudflare-lib';
 import { createGithubPr } from './lib/github-lib';
 import { createMdxContent } from './lib/mdx-lib';
 
@@ -110,6 +111,14 @@ export default {
               const markdown = executor.execute(content);
               console.log('Zenn形式への変換完了');
 
+              // 画像を処理して R2 に保存
+              const processedMarkdown = await processAndUploadImages({
+                markdown,
+                r2PublicUrl: env.R2_PUBLIC_URL,
+                r2Bucket: env.BLOG_WORKER,
+              });
+              console.log('画像のR2への保存と URL 変換が完了しました');
+
               // MDXファイルを生成
               const mdxContent = createMdxContent(
                 title,
@@ -119,7 +128,7 @@ export default {
                 slug,
                 tags,
                 description,
-                markdown,
+                processedMarkdown,
               );
               console.log('MDXファイルの生成完了');
 

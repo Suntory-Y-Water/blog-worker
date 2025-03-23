@@ -6,4 +6,6 @@ type Env = {
   LINE_CHANNEL_ACCESS_TOKEN: string;
   NOTION_API_KEY: string;
   GITHUB_TOKEN: string;
+  BLOG_WORKER: R2Bucket;
+  R2_PUBLIC_URL: string;
 };
