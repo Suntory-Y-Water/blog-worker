@@ -1,105 +1,118 @@
 /**
- * マークダウン内のAmazon S3画像URLをCloudflare R2に保存し、R2のURLに置き換える
- *
- * @param markdown 処理対象のマークダウンテキスト
- * @param r2Bucket Cloudflare R2バケットのインスタンス
- * @param r2PublicUrl R2バケットの公開URL (例: https://pub-xxxxx.r2.dev)
- * @returns 画像URLが置き換えられたマークダウンテキスト
+ * マークダウン内の画像URLをCloudflare R2に保存し、R2のURLに置き換える
+ * シンプル化バージョン - Notionの画像記法に特化
  */
-
-type ProcessAndUploadImagesParams = {
+type ProcessImagesParams = {
   markdown: string;
   r2PublicUrl: string;
   r2Bucket: R2Bucket;
 };
+
 export async function processAndUploadImages({
   markdown,
   r2PublicUrl,
   r2Bucket,
-}: ProcessAndUploadImagesParams): Promise<string> {
+}: ProcessImagesParams): Promise<string> {
+  // 全ての画像記法をキャプチャ (Notionでは ![URL](URL) の形式)
+  const imagePattern = /!\[(.*?)]\((.*?)\)/g;
+  const processedUrls = new Map<string, string>();
+  const uploadPromises: Promise<void>[] = [];
+
+  // 全てのマッチを検出
+  const matches = [...markdown.matchAll(imagePattern)];
+  if (matches.length === 0) return markdown;
+
+  // 処理対象のURLを収集（altテキストがURLの場合のみ処理）
+  const urlsToProcess = matches
+    .filter((match) => match[1].startsWith('https://')) // altテキストがURLのもののみ
+    .map((match) => match[1]); // 画像URL部分
+
+  // 重複を除外
+  const uniqueUrls = [...new Set(urlsToProcess)];
+  if (uniqueUrls.length === 0) return markdown;
+
+  // 各URLに対して並列処理を準備
+  for (const imageUrl of uniqueUrls) {
+    uploadPromises.push(processImage(imageUrl, r2Bucket, r2PublicUrl, processedUrls));
+  }
+
+  // 全ての画像処理を並列実行
+  await Promise.allSettled(uploadPromises);
+
+  // 処理済みURLがなければ元のマークダウンを返す
+  if (processedUrls.size === 0) return markdown;
+
+  // URLの置換処理（一度の処理で全ての置換を行う）
+  return replaceMarkdownUrls(markdown, processedUrls);
+}
+
+/**
+ * 1つの画像を処理する
+ */
+async function processImage(
+  s3Url: string,
+  r2Bucket: R2Bucket,
+  r2PublicUrl: string,
+  processedUrls: Map<string, string>,
+): Promise<void> {
   try {
-    // Amazon S3の画像URLパターンを検出する正規表現
-    // ![URL](既存R2URL) の形式を検出
-    const imageRegex = /!\[(https:\/\/prod-files-secure\.s3\..*?)]\((.*?)\)/g;
+    // 画像ファイル名の生成 (ユニーク性を保証)
+    const fileName = extractFileName(s3Url);
+    const safeFileName = `images/${fileName}-${Date.now()}.png`;
 
-    // 検出した画像URLと処理後のURLのマッピングを保存するオブジェクト
-    const processedUrls = new Map<string, string>();
-
-    // 正規表現にマッチするすべての画像URLを検出
-    const matches = Array.from(markdown.matchAll(imageRegex));
-
-    // 検出した各画像URLを処理
-    for (const match of matches) {
-      // S3の画像URL（alt部分に含まれている）
-      const s3Url = match[1];
-
-      // すでに処理済みのURLはスキップ
-      if (processedUrls.has(s3Url)) {
-        continue;
-      }
-
-      // 画像ファイル名を取得 (URLのパス部分から最後のセグメントを取得)
-      const fileName = s3Url.split('/').pop()?.split('?')[0] || `image-${Date.now()}.png`;
-      const safeFileName = `images/${fileName}-${Date.now()}.png`;
-
-      try {
-        // 画像をダウンロード
-        const response = await fetch(s3Url);
-        if (!response.ok) {
-          console.error(`画像のダウンロードに失敗しました: ${s3Url}`);
-          continue;
-        }
-
-        // 画像のバイナリデータを取得
-        const imageData = await response.arrayBuffer();
-
-        // R2バケットに画像をアップロード
-        await r2Bucket.put(safeFileName, imageData, {
-          httpMetadata: {
-            contentType: response.headers.get('content-type') || 'image/png',
-          },
-        });
-
-        // 公開URLを生成
-        const publicUrl = `${r2PublicUrl}/${safeFileName}`;
-
-        // 処理済みURLとして記録
-        processedUrls.set(s3Url, publicUrl);
-
-        console.log(`画像を保存しました: ${publicUrl}`);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'unknown error';
-        console.error(`画像の処理中にエラーが発生しました: ${s3Url}`);
-        console.error(`message: ${message}`);
-      }
+    // 画像をダウンロード
+    const response = await fetch(s3Url);
+    if (!response.ok) {
+      console.error(`画像のダウンロードに失敗: ${s3Url}, ステータス: ${response.status}`);
+      return;
     }
 
-    // マークダウン内の画像URL参照を置き換え
-    let processedMarkdown = markdown;
-    for (const [s3Url, publicUrl] of processedUrls.entries()) {
-      // 画像記法を新しいR2のURLに置き換え
-      const pattern = new RegExp(`!\\[${escapeRegExp(s3Url)}\\]\\(.*?\\)`, 'g');
-      processedMarkdown = processedMarkdown.replace(
-        pattern,
-        `![${publicUrl}](${publicUrl})`,
-      );
-    }
+    // 画像データを取得してアップロード
+    const imageData = await response.arrayBuffer();
+    await r2Bucket.put(safeFileName, imageData, {
+      httpMetadata: {
+        contentType: response.headers.get('content-type') || 'image/png',
+      },
+    });
 
-    return processedMarkdown;
+    // マッピング情報を保存
+    const publicUrl = `${r2PublicUrl}/${safeFileName}`;
+    processedUrls.set(s3Url, publicUrl);
+    console.log(`画像アップロード成功: ${publicUrl}`);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'unknown error';
-    console.error('画像処理中にエラーが発生しました');
-    console.error(`message: ${message}`);
-    return markdown; // エラー時は元のマークダウンを返す
+    console.error(
+      `画像処理エラー (${s3Url}): ${error instanceof Error ? error.message : error}`,
+    );
   }
 }
 
 /**
- * 正規表現で使用される特殊文字をエスケープする
- *
- * @param string エスケープする文字列
- * @returns エスケープされた文字列
+ * URLからファイル名を抽出する
  */
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function extractFileName(url: string): string {
+  const defaultName = `image-${Date.now()}`;
+  try {
+    const urlPath = new URL(url).pathname;
+    const fileName = urlPath.split('/').pop() || defaultName;
+    return fileName.split('?')[0]; // クエリパラメータを除去
+  } catch {
+    return defaultName;
+  }
+}
+
+/**
+ * マークダウン内のURL参照を置き換える
+ */
+function replaceMarkdownUrls(markdown: string, urlMap: Map<string, string>): string {
+  let result = markdown;
+
+  for (const [s3Url, r2Url] of urlMap.entries()) {
+    const escapedUrl = s3Url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`!\\[${escapedUrl}\\]\\(.*?\\)`, 'g');
+
+    // 新しい形式に置き換え
+    result = result.replace(pattern, `![${r2Url}](${r2Url})`);
+  }
+
+  return result;
 }
