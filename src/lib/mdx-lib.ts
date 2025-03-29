@@ -1,17 +1,19 @@
+import emojiData from 'unicode-emoji-json';
+
+type Emoji = {
+  name: string;
+  slug: string;
+  group: string;
+  emoji_version: string;
+  unicode_version: string;
+  skin_tone_support: boolean;
+};
+
 /**
- * MDXファイルを生成する関数（画像処理対応バージョン）
- * @param title 記事タイトル
- * @param isPublic 公開設定
- * @param date 日付
- * @param icon アイコン
- * @param slug スラッグ
- * @param tags タグ配列
- * @param description 説明
- * @param markdown マークダウンコンテンツ
- * @param r2Bucket R2バケットインスタンス
+ * MDXファイルを生成する
  * @returns 生成されたMDXコンテンツ
  */
-export function createMdxContent(
+export async function createMdxContent(
   title: string,
   isPublic: boolean,
   date: string,
@@ -30,7 +32,6 @@ export function createMdxContent(
   // コードブロックのタイトル形式を変換
   const finalMdxContent = transformCodeBlockTitles(transformedMdxContent);
 
-  // フロントマターの作成
   // タグのインデントを統一（2スペース）
   const tagsString = tags.map((tag) => `  - ${tag}`).join('\n');
 
@@ -38,12 +39,13 @@ export function createMdxContent(
   const dateObj = new Date(date);
   const formattedDate = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
 
-  // MDXファイルの作成（インデントなし、適切な改行あり）
+  const pageIcon = await getValidFluentEmojiUrl(icon);
+
   return `---
 title: ${title}
 public: ${isPublic}
 date: ${formattedDate}
-icon: ${icon}
+icon: ${pageIcon}
 slug: ${slug}
 tags: 
 ${tagsString}
@@ -54,7 +56,7 @@ ${finalMdxContent}`;
 }
 
 /**
- * Zennの:::messageブロックをMDXの<Callout>コンポーネントに変換する関数
+ * Zennの:::messageブロックをMDXの<Callout>コンポーネントに変換する
  * @param markdown Zenn形式のマークダウンテキスト
  * @returns <Callout>コンポーネントを使用したMDX形式のテキスト
  */
@@ -66,7 +68,7 @@ export function convertZennToMdx(markdown: string): string {
   // 変換処理
   return markdown.replace(
     messageBlockRegex,
-    (_, type: string | undefined, content: string | undefined) => {
+    (type: string | undefined, content: string | undefined) => {
       // contentがundefinedの場合は空文字列にする
       const safeContent = content || '';
 
@@ -170,7 +172,7 @@ export function transformLinksToPreviewComponent(markdown: string): string {
 }
 
 /**
- * コードブロックのタイトル形式を変換する関数
+ * コードブロックのタイトル形式を変換する
  * Notionスタイル: ```typescript:index.ts
  * MDXスタイル:     ```typescript title="index.ts"
  *
@@ -204,4 +206,74 @@ export function transformCodeBlockTitles(markdown: string): string {
 
   // 変換後の行を結合して返す
   return resultLines.join('\n');
+}
+
+/**
+ * 絵文字のURLを生成する
+ * @param emojiInfo 絵文字の情報
+ * @returns 絵文字のURL
+ */
+function generateFluentEmojiUrl(emojiInfo: Emoji) {
+  const { name, slug, skin_tone_support } = emojiInfo;
+
+  // ディレクトリ名は最初の単語の先頭のみ大文字、残りは小文字
+  // grinning face -> Grinning face
+  const dirName = name.charAt(0).toUpperCase() + name.slice(1);
+
+  const encodedDirName = dirName.replace(/ /g, '%20');
+
+  if (!skin_tone_support) {
+    return `https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/${encodedDirName}/Flat/${slug}_flat.svg`;
+  }
+
+  return `https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/${encodedDirName}/Default/Flat/${slug}_flat_default.svg`;
+}
+
+/**
+ * 絵文字からFluent Emoji URLを生成し、有効性を確認する
+ * @param {string} emoji - 変換したい絵文字
+ * @returns {Promise<string>} 有効な場合はURL、無効な場合は元の絵文字
+ */
+async function getValidFluentEmojiUrl(icon: string) {
+  // 絵文字の情報を取得
+  const emojiInfo = emojiData[icon as keyof typeof emojiData];
+
+  if (!emojiInfo) {
+    console.log(`絵文字情報が見つかりませんでした: ${icon}`);
+    return icon;
+  }
+
+  // URLを生成
+  const url = generateFluentEmojiUrl(emojiInfo);
+
+  // URLが有効かどうかを確認
+  const isValid = await checkUrlValidity(url);
+
+  if (!isValid) {
+    console.log(`無効なURL: ${url}`);
+    return icon;
+  }
+
+  console.log(`有効なURLが見つかりました: ${url}`);
+  return url;
+}
+
+/**
+ * URLの有効性を確認する
+ * @param url URL
+ * @returns boolean
+ */
+async function checkUrlValidity(url: string) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`URLが見つかりませんでした: ${url}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '不明なエラー';
+    console.error(`URLの有効性チェックに失敗しました: ${url} message: ${message}`);
+    return false;
+  }
 }

@@ -62,10 +62,8 @@ export default {
           return new Response('notionのページURLを指定してください', { status: 400 });
         }
 
-        // TODO: ページタイトルに英語が入っていると複数個ハイフンがはいるのでいまのままだと取得できない
         // ページIDを取得(クエリパラメータを除いた末尾32文字)
         // example: https://www.notion.so/NotoSansJP-Safari-1ba779d04d0280cabec8c883c37b0627?pvs=4
-        // example: https://www.notion.so/1ba779d04d0280cabcc6c62808dc1a03?pvs=4
         const pageId = text.split('?')[0].split('/').pop()?.slice(-32);
 
         if (!pageId) {
@@ -120,7 +118,7 @@ export default {
               console.log('画像のR2への保存と URL 変換が完了しました');
 
               // MDXファイルを生成
-              const mdxContent = createMdxContent(
+              const mdxContent = await createMdxContent(
                 title,
                 isPublic,
                 date,
