@@ -68,7 +68,7 @@ export function convertZennToMdx(markdown: string): string {
   // 変換処理
   return markdown.replace(
     messageBlockRegex,
-    (type: string | undefined, content: string | undefined) => {
+    (_match: string, type: string | undefined, content: string | undefined) => {
       // contentがundefinedの場合は空文字列にする
       const safeContent = content || '';
 
@@ -208,11 +208,6 @@ export function transformCodeBlockTitles(markdown: string): string {
   return resultLines.join('\n');
 }
 
-/**
- * 絵文字のURLを生成する
- * @param emojiInfo 絵文字の情報
- * @returns 絵文字のURL
- */
 function generateFluentEmojiUrl(emojiInfo: Emoji) {
   const { name, slug, skin_tone_support } = emojiInfo;
 
@@ -229,17 +224,10 @@ function generateFluentEmojiUrl(emojiInfo: Emoji) {
   return `https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/${encodedDirName}/Default/Flat/${slug}_flat_default.svg`;
 }
 
-/**
- * 絵文字からFluent Emoji URLを生成し、有効性を確認する
- * @param {string} emoji - 変換したい絵文字
- * @returns {Promise<string>} 有効な場合はURL、無効な場合は元の絵文字
- */
 async function getValidFluentEmojiUrl(icon: string) {
-  // 絵文字の情報を取得
   const emojiInfo = emojiData[icon as keyof typeof emojiData];
 
   if (!emojiInfo) {
-    console.log(`絵文字情報が見つかりませんでした: ${icon}`);
     return icon;
   }
 
@@ -250,11 +238,9 @@ async function getValidFluentEmojiUrl(icon: string) {
   const isValid = await checkUrlValidity(url);
 
   if (!isValid) {
-    console.log(`無効なURL: ${url}`);
     return icon;
   }
 
-  console.log(`有効なURLが見つかりました: ${url}`);
   return url;
 }
 
@@ -267,7 +253,6 @@ async function checkUrlValidity(url: string) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      console.error(`URLが見つかりませんでした: ${url}`);
       return false;
     }
     return true;
