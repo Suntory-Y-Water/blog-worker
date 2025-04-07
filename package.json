@@ -15,7 +15,7 @@
     "@biomejs/biome": "1.9.4",
     "@cloudflare/vitest-pool-workers": "^0.8.11",
     "@cloudflare/workers-types": "^4.20250406.0",
-    "@line/bot-sdk": "^9.7.3",
+    "@line/bot-sdk": "^9.8.0",
     "typescript": "^5.8.3",
     "vitest": "~3.1.1",
     "wrangler": "^4.7.2"

@@ -37,8 +37,8 @@ importers:
         specifier: ^4.20250406.0
         version: 4.20250406.0
       '@line/bot-sdk':
-        specifier: ^9.7.3
-        version: 9.7.3
+        specifier: ^9.8.0
+        version: 9.8.0
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -583,8 +583,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@line/bot-sdk@9.7.3':
-    resolution: {integrity: sha512-PIeteAiPK5+CAFjOiKPfcdN4aIjYZIfqOkWKPUDRus5LShZzfrF0izE2wH5+6IOoyFV/p+3OiyOE9eJhsM1PgA==}
+  '@line/bot-sdk@9.8.0':
+    resolution: {integrity: sha512-vw4TTtkw5zwKu/FhATnm5n2sCcoKjcHEgN16Oq5NyXwGEzIcyh6RwGrYnX4SisiPO1lklAIba1DuDf9hEYZ4mg==}
     engines: {node: '>=18'}
 
   '@notion-md-converter/core@0.9.0':
@@ -1604,7 +1604,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@line/bot-sdk@9.7.3':
+  '@line/bot-sdk@9.8.0':
     dependencies:
       '@types/node': 22.14.0
     optionalDependencies:
