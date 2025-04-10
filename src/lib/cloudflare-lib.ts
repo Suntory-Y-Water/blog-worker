@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * マークダウン内の画像URLをCloudflare R2に保存し、R2のURLに置き換える
  * シンプル化バージョン - Notionの画像記法に特化
@@ -58,7 +60,7 @@ async function processImage(
   try {
     // 画像ファイル名の生成 (ユニーク性を保証)
     const fileName = extractFileName(s3Url);
-    const safeFileName = `images/${fileName}-${Date.now()}.png`;
+    const safeFileName = `images/${fileName}-${uuidv4()}.png`;
 
     // 画像をダウンロード
     const response = await fetch(s3Url);
@@ -90,7 +92,7 @@ async function processImage(
  * URLからファイル名を抽出する
  */
 function extractFileName(url: string): string {
-  const defaultName = `image-${Date.now()}`;
+  const defaultName = `image-${uuidv4()}`;
   try {
     const urlPath = new URL(url).pathname;
     const fileName = urlPath.split('/').pop() || defaultName;
@@ -107,11 +109,12 @@ function replaceMarkdownUrls(markdown: string, urlMap: Map<string, string>): str
   let result = markdown;
 
   for (const [s3Url, r2Url] of urlMap.entries()) {
-    const escapedUrl = s3Url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const pattern = new RegExp(`!\\[${escapedUrl}\\]\\(.*?\\)`, 'g');
+    // 正規表現を使わずに文字列置換で対応する
+    // `![S3のURL](S3のURL)` というパターンを探して置換
+    const s3Pattern = `![${s3Url}](${s3Url})`;
+    const r2Pattern = `![${r2Url}](${r2Url})`;
 
-    // 新しい形式に置き換え
-    result = result.replace(pattern, `![${r2Url}](${r2Url})`);
+    result = result.split(s3Pattern).join(r2Pattern);
   }
 
   return result;
