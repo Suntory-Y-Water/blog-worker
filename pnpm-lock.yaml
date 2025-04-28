@@ -35,13 +35,13 @@ importers:
         version: 1.9.4
       '@cloudflare/vitest-pool-workers':
         specifier: ^0.8.14
-        version: 0.8.14(@cloudflare/workers-types@4.20250408.0)(@vitest/runner@3.1.1)(@vitest/snapshot@3.1.1)(vitest@3.1.1(@types/node@22.14.0))
+        version: 0.8.14(@cloudflare/workers-types@4.20250408.0)(@vitest/runner@3.1.1)(@vitest/snapshot@3.1.1)(vitest@3.1.1(@types/node@22.15.3))
       '@cloudflare/workers-types':
         specifier: ^4.20250408.0
         version: 4.20250408.0
       '@line/bot-sdk':
-        specifier: ^9.8.0
-        version: 9.8.0
+        specifier: ^9.9.0
+        version: 9.9.0
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -50,7 +50,7 @@ importers:
         version: 5.8.3
       vitest:
         specifier: ~3.1.1
-        version: 3.1.1(@types/node@22.14.0)
+        version: 3.1.1(@types/node@22.15.3)
       wrangler:
         specifier: ^4.9.1
         version: 4.9.1(@cloudflare/workers-types@4.20250408.0)
@@ -589,8 +589,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@line/bot-sdk@9.8.0':
-    resolution: {integrity: sha512-vw4TTtkw5zwKu/FhATnm5n2sCcoKjcHEgN16Oq5NyXwGEzIcyh6RwGrYnX4SisiPO1lklAIba1DuDf9hEYZ4mg==}
+  '@line/bot-sdk@9.9.0':
+    resolution: {integrity: sha512-/jVjH7k2uMWY1O0F/zkwYD3dqDH/pWbawvDtR6DV/scruH86w9zZrMwknZLt1unUWdK+V9eX4UVP/gLAzqUocg==}
     engines: {node: '>=18'}
 
   '@notion-md-converter/core@0.9.0':
@@ -761,8 +761,8 @@ packages:
   '@types/node-fetch@2.6.12':
     resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
 
-  '@types/node@22.14.0':
-    resolution: {integrity: sha512-Kmpl+z84ILoG+3T/zQFyAJsU6EPTmOCj8/2+83fSN6djd6I4o7uOuGIH6vq3PrjY5BGitSbFuMN18j3iknubbA==}
+  '@types/node@22.15.3':
+    resolution: {integrity: sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==}
 
   '@types/uuid@10.0.0':
     resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
@@ -815,8 +815,8 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  axios@1.8.4:
-    resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
+  axios@1.9.0:
+    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
 
   before-after-hook@3.0.2:
     resolution: {integrity: sha512-Nik3Sc0ncrMK4UUdXQmAnRtzmNQTAAXmXIopizwZ1W1t8QmfJj+zL4OA2I7XPTPW5z5TDqv4hRo/JzouDJnX3A==}
@@ -1337,7 +1337,7 @@ snapshots:
     optionalDependencies:
       workerd: 1.20250408.0
 
-  '@cloudflare/vitest-pool-workers@0.8.14(@cloudflare/workers-types@4.20250408.0)(@vitest/runner@3.1.1)(@vitest/snapshot@3.1.1)(vitest@3.1.1(@types/node@22.14.0))':
+  '@cloudflare/vitest-pool-workers@0.8.14(@cloudflare/workers-types@4.20250408.0)(@vitest/runner@3.1.1)(@vitest/snapshot@3.1.1)(vitest@3.1.1(@types/node@22.15.3))':
     dependencies:
       '@vitest/runner': 3.1.1
       '@vitest/snapshot': 3.1.1
@@ -1347,7 +1347,7 @@ snapshots:
       esbuild: 0.24.2
       miniflare: 4.20250408.0
       semver: 7.7.1
-      vitest: 3.1.1(@types/node@22.14.0)
+      vitest: 3.1.1(@types/node@22.15.3)
       wrangler: 4.9.1(@cloudflare/workers-types@4.20250408.0)
       zod: 3.24.2
     transitivePeerDependencies:
@@ -1617,11 +1617,11 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@line/bot-sdk@9.8.0':
+  '@line/bot-sdk@9.9.0':
     dependencies:
-      '@types/node': 22.14.0
+      '@types/node': 22.15.3
     optionalDependencies:
-      axios: 1.8.4
+      axios: 1.9.0
     transitivePeerDependencies:
       - debug
 
@@ -1770,10 +1770,10 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 22.14.0
+      '@types/node': 22.15.3
       form-data: 4.0.2
 
-  '@types/node@22.14.0':
+  '@types/node@22.15.3':
     dependencies:
       undici-types: 6.21.0
 
@@ -1786,13 +1786,13 @@ snapshots:
       chai: 5.2.0
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.1.1(vite@6.2.5(@types/node@22.14.0))':
+  '@vitest/mocker@3.1.1(vite@6.2.5(@types/node@22.15.3))':
     dependencies:
       '@vitest/spy': 3.1.1
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: 6.2.5(@types/node@22.14.0)
+      vite: 6.2.5(@types/node@22.15.3)
 
   '@vitest/pretty-format@3.1.1':
     dependencies:
@@ -1831,7 +1831,7 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  axios@1.8.4:
+  axios@1.9.0:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.2
@@ -2234,13 +2234,13 @@ snapshots:
 
   uuid@11.1.0: {}
 
-  vite-node@3.1.1(@types/node@22.14.0):
+  vite-node@3.1.1(@types/node@22.15.3):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0
       es-module-lexer: 1.6.0
       pathe: 2.0.3
-      vite: 6.2.5(@types/node@22.14.0)
+      vite: 6.2.5(@types/node@22.15.3)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -2255,19 +2255,19 @@ snapshots:
       - tsx
       - yaml
 
-  vite@6.2.5(@types/node@22.14.0):
+  vite@6.2.5(@types/node@22.15.3):
     dependencies:
       esbuild: 0.25.2
       postcss: 8.5.3
       rollup: 4.39.0
     optionalDependencies:
-      '@types/node': 22.14.0
+      '@types/node': 22.15.3
       fsevents: 2.3.3
 
-  vitest@3.1.1(@types/node@22.14.0):
+  vitest@3.1.1(@types/node@22.15.3):
     dependencies:
       '@vitest/expect': 3.1.1
-      '@vitest/mocker': 3.1.1(vite@6.2.5(@types/node@22.14.0))
+      '@vitest/mocker': 3.1.1(vite@6.2.5(@types/node@22.15.3))
       '@vitest/pretty-format': 3.1.1
       '@vitest/runner': 3.1.1
       '@vitest/snapshot': 3.1.1
@@ -2283,11 +2283,11 @@ snapshots:
       tinyexec: 0.3.2
       tinypool: 1.0.2
       tinyrainbow: 2.0.0
-      vite: 6.2.5(@types/node@22.14.0)
-      vite-node: 3.1.1(@types/node@22.14.0)
+      vite: 6.2.5(@types/node@22.15.3)
+      vite-node: 3.1.1(@types/node@22.15.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 22.14.0
+      '@types/node': 22.15.3
     transitivePeerDependencies:
       - jiti
       - less
