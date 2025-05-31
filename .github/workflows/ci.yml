@@ -1,19 +1,34 @@
-name: ci
+name: CI
 
-on: push
+on:
+  # feature-またはfeature/で始まるPR、dependabotでのみ実行する
+  push:
+    branches: 
+      - 'feature-*'
+      - 'feature/*'
+      - 'dependabot/*'
 
 jobs:
-  test:
+  build_lint_test:
+    name: Build, Lint, and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - uses: pnpm/action-setup@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm' # pnpmの依存関係キャッシュを有効化
+
       - name: Install dependencies
-        run: pnpm install
-      - name: Run test
-        run: pnpm run test
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Tests
+        run: pnpm test
