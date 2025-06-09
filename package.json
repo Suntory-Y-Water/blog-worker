@@ -14,11 +14,11 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@cloudflare/vitest-pool-workers": "^0.8.36",
-    "@cloudflare/workers-types": "^4.20250604.0",
+    "@cloudflare/workers-types": "^4.20250607.0",
     "@line/bot-sdk": "^9.9.0",
     "@types/uuid": "^10.0.0",
     "typescript": "^5.8.3",
-    "vitest": "~3.2.1",
+    "vitest": "~3.2.3",
     "wrangler": "^4.19.1"
   },
   "dependencies": {
